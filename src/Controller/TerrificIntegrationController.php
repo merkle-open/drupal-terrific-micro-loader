@@ -3,6 +3,7 @@
 namespace Drupal\terrific_integration\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\File\FileSystem;
 use Drupal\terrific_integration\AssetManager;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,8 +16,7 @@ class TerrificIntegrationController extends ControllerBase {
    * {@inheritdoc}
    */
   public function getAsset() {
-    global $base_path;
-    $frontendBase = $base_path . '/../frontend/';
+    $frontendBase =  DRUPAL_ROOT . '/../../frontend/';
 
     if (!file_exists($frontendBase . 'config.json')) {
       return new Response('Config not found', 404);

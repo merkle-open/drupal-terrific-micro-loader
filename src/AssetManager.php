@@ -16,15 +16,13 @@ class AssetManager {
   private $output = '';
   private $cacheKey;
   private $cachedAssetsDir;
-  private $frontendDir;
 
   /**
    * AssetManager constructor.
    */
   public function __construct($basePath, array $urlPatterns, $assetName) {
     $this->basePath = $basePath;
-    $this->frontendDir = $basePath . '/../frontend/';
-    $this->cachedAssetsDir = $basePath . '/sites/default/files/terrific/';
+    $this->cachedAssetsDir = \Drupal::service('file_system')->realpath('public://terrific') . '/';
     $this->urlPatterns = $urlPatterns;
     $this->assetName = $assetName;
     $this->fileType = substr(strrchr($assetName, '.'), 1);
@@ -67,7 +65,7 @@ class AssetManager {
 
       $rawOutput = '';
       foreach ($files as $entry) {
-        $rawOutput .= $this->compile($this->frontendDir . $entry, $dependencies);
+        $rawOutput .= $this->compile($this->basePath . $entry, $dependencies);
       }
 
       $this->output = $this->minify($rawOutput);
@@ -101,23 +99,23 @@ class AssetManager {
    * Compile.
    */
   private function compile($fileName, $dependencies = array()) {
-    $cachedir = is_writable(sys_get_temp_dir()) ? sys_get_temp_dir() : $this->frontendDir . 'app/cache';
+    $cachedir = is_writable(sys_get_temp_dir()) ? sys_get_temp_dir() : $this->basePath . 'app/cache';
     $extension = substr(strrchr($fileName, '.'), 1);
 
     switch ($extension) {
       case 'less':
         $modified = filemtime($fileName);
         foreach ($dependencies as $dep) {
-          if (substr(strrchr($dep, '.'), 1) == $extension && filemtime($this->frontendDir . $dep) > $modified) {
-            $modified = filemtime($this->frontendDir . $dep);
+          if (substr(strrchr($dep, '.'), 1) == $extension && filemtime($this->basePath . $dep) > $modified) {
+            $modified = filemtime($this->basePath . $dep);
           }
         }
-        $cachefile = $cachedir . '/terrific-' . md5($this->frontendDir . implode('', $dependencies) . $fileName) . '.css';
+        $cachefile = $cachedir . '/terrific-' . md5($this->basePath . implode('', $dependencies) . $fileName) . '.css';
         if (!is_file($cachefile) || (filemtime($cachefile) != $modified)) {
           $filecontents = '';
           foreach ($dependencies as $dep) {
             if (substr(strrchr($dep, '.'), 1) == $extension) {
-              $filecontents .= file_get_contents($this->frontendDir . $dep);
+              $filecontents .= file_get_contents($this->basePath . $dep);
             }
           }
           $filecontents .= file_get_contents($fileName);

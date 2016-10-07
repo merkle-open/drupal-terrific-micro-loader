@@ -48,7 +48,7 @@ function terrific_integration_preprocess_page(&$variables) {
 function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
     $javascript['terrific/asset?name=app.js'] = [
-      'data' => '/terrific/asset?name=app.js&2',
+      'data' => '/terrific/asset?name=app.js',
       'scope' => 'footer',
       'minified' => FALSE,
       'type' => 'external',
@@ -63,7 +63,7 @@ function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $as
  * Implements hook_cache_flush().
  */
 function terrific_integration_cache_flush() {
-  $files = glob(__DIR__ . '/../../../sites/default/files/terrific/*');
+  $files = glob(\Drupal::service('file_system')->realpath('public://terrific') . '/*');
   foreach ($files as $file) {
     if (is_file($file)) {
       unlink($file);
