@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Contains terrific.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+/**
+ * Implements hook_help().
+ */
+function terrific_integration_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the terrific module.
+    case 'help.page.terrific_integration':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Terrific Integration') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function terrific_integration_theme() {
+  $theme = [];
+
+  return $theme;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function terrific_integration_preprocess_page(&$variables) {
+  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
+    $variables['#attached']['library'][] = 'terrific_integration/main';
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
+  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
+    $javascript['terrific/asset?name=app.js'] = [
+      'data' => '/terrific/asset?name=app.js&2',
+      'scope' => 'footer',
+      'minified' => FALSE,
+      'type' => 'external',
+      'group' => -100,
+      'weight' => 0.078,
+      'browsers' => array(),
+    ];
+  }
+}
+
+/**
+ * Implements hook_cache_flush().
+ */
+function terrific_integration_cache_flush() {
+  $files = glob(__DIR__ . '/../../../sites/default/files/terrific/*');
+  foreach ($files as $file) {
+    if (is_file($file)) {
+      unlink($file);
+    }
+  }
+}
