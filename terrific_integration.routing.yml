@@ -1,7 +1,0 @@
-terrific.asset:
-  path: '/terrific/asset'
-  defaults:
-    _controller: '\Drupal\terrific_integration\Controller\TerrificIntegrationController::getAsset'
-    _title: 'Terrific Asset'
-  requirements:
-    _permission: 'access terrific_integration'

@@ -1,72 +1,20 @@
 <?php
 
-/**
- * @file
- * Contains terrific.module..
- */
 
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Asset\AttachedAssetsInterface;
+require 'utils.php';
 
 /**
- * Implements hook_help().
+ * Implements hook_preprocess().
  */
-function terrific_integration_help($route_name, RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    // Main module help for the terrific module.
-    case 'help.page.terrific_integration':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Terrific Integration') . '</p>';
-      return $output;
+function terrific_integration_preprocess(&$variables, $hook) {
+  if ($hook == 'page') {
+    $minify = variable_get('preprocess_js', FALSE);
+    $cache_key = variable_get('css_js_query_string', '0');
 
-    default:
-  }
-}
+    $asset_path = micro_dump('app.css', $cache_key, $minify );
+    drupal_add_css($asset_path);
 
-/**
- * Implements hook_theme().
- */
-function terrific_integration_theme() {
-  $theme = [];
-
-  return $theme;
-}
-
-/**
- * Implements hook_preprocess_HOOK().
- */
-function terrific_integration_preprocess_page(&$variables) {
-  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $variables['#attached']['library'][] = 'terrific_integration/main';
-  }
-}
-
-/**
- * Implements hook_js_alter().
- */
-function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
-  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $javascript['terrific/asset?name=app.js'] = [
-      'data' => '/terrific/asset?name=app.js',
-      'scope' => 'footer',
-      'minified' => FALSE,
-      'type' => 'external',
-      'group' => -100,
-      'weight' => 0.078,
-      'browsers' => array(),
-    ];
-  }
-}
-
-/**
- * Implements hook_cache_flush().
- */
-function terrific_integration_cache_flush() {
-  $files = glob(\Drupal::service('file_system')->realpath('public://terrific') . '/*');
-  foreach ($files as $file) {
-    if (is_file($file)) {
-      unlink($file);
-    }
+    $asset_path = micro_dump('app.js', $cache_key, $minify );
+    drupal_add_js($asset_path);
   }
 }

@@ -1,0 +1,3 @@
+name = "Terrific Integration"
+description = "Loads Terrrific Micro assets dynamically"
+core = 7.x
