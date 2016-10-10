@@ -1,0 +1,20 @@
+{
+  "name": "namics/terrific_integration",
+  "description": "Provides integration for Terrific Micro within Drupal.",
+  "type": "drupal-module",
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/namics/drupal-terrific-micro-loader/issues",
+    "source": "https://github.com/namics/drupal-terrific-micro-loader"
+  },
+  "keywords": [
+    "Drupal",
+    "Terrific",
+    "Micro"
+  ],
+  "autoload": {
+    "psr-4": {
+      "Drupal\\twig_nitro_bridge\\": "src/"
+    }
+  }
+}
