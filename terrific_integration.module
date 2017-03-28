@@ -47,8 +47,9 @@ function terrific_integration_preprocess_page(&$variables) {
  */
 function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
+    $cache_key = uniqid();
     $javascript['terrific/asset?name=app.js'] = [
-      'data' => '/terrific/asset?name=app.js',
+      'data' => '/terrific/asset?name=app.js&cache_key=' . $cache_key,
       'scope' => 'footer',
       'minified' => FALSE,
       'type' => 'external',
