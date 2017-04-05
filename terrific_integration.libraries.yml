@@ -1,5 +1,0 @@
-main:
-  version: 1.x
-  css:
-    theme:
-      /terrific/asset?name=app.css: {}

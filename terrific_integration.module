@@ -7,6 +7,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\terrific_integration\AssetManager;
 
 /**
  * Implements hook_help().
@@ -38,7 +39,17 @@ function terrific_integration_theme() {
  */
 function terrific_integration_preprocess_page(&$variables) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $variables['#attached']['library'][] = 'terrific_integration/main';
+    $frontendBase = __DIR__ . '/../../../../../frontend/';
+    $config = json_decode(file_get_contents($frontendBase . 'config.json'));
+    $assetManager = new AssetManager($frontendBase);
+
+    $mainJs = 'main.js';
+    $data = $config->assets->{$mainJs};
+    $assetManager->dump($data, $mainJs);
+
+    $mainCss = 'main.css';
+    $data = $config->assets->{$mainCss};
+    $assetManager->dump($data, $mainCss);
   }
 }
 
@@ -47,15 +58,34 @@ function terrific_integration_preprocess_page(&$variables) {
  */
 function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $cache_key = uniqid();
-    $javascript['terrific/asset?name=app.js'] = [
-      'data' => '/terrific/asset?name=app.js&cache_key=' . $cache_key,
+    $javascript['terrific/main.js'] = [
+      'data' => _terrific_integration_file_path('main.js'),
       'scope' => 'footer',
       'minified' => FALSE,
-      'type' => 'external',
-      'group' => -100,
-      'weight' => 0.078,
+      'type' => 'file',
+      'group' => -150,
+      'weight' => 0,
       'browsers' => array(),
+      'cache' => TRUE,
+      'version' => '1.0.0',
+    ];
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function terrific_integration_css_alter(&$css, AttachedAssetsInterface $assets) {
+  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
+    $css['terrific/main.css'] = [
+      'data' => _terrific_integration_file_path('main.css'),
+      'type' => 'file',
+      'group' => -150,
+      'weight' => 0,
+      'browsers' => array(),
+      'media' => 'all',
+      'preprocess' => TRUE,
+      'version' => '1.0.0',
     ];
   }
 }
@@ -70,4 +100,11 @@ function terrific_integration_cache_flush() {
       unlink($file);
     }
   }
+}
+
+/**
+ * Helper function to return the path of the asset.
+ */
+function _terrific_integration_file_path($assetName) {
+  return '/sites/default/files/terrific/' . \Drupal::state()->get('system.css_js_query_string') . '-' . $assetName;
 }

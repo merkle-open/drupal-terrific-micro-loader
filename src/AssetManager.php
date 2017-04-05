@@ -20,19 +20,20 @@ class AssetManager {
   /**
    * AssetManager constructor.
    */
-  public function __construct($basePath, array $urlPatterns, $assetName) {
+  public function __construct($basePath) {
     $this->basePath = $basePath;
     $this->cachedAssetsDir = \Drupal::service('file_system')->realpath('public://terrific') . '/';
-    $this->urlPatterns = $urlPatterns;
-    $this->assetName = $assetName;
-    $this->fileType = substr(strrchr($assetName, '.'), 1);
     $this->cacheKey = \Drupal::state()->get('system.css_js_query_string');
   }
 
   /**
    * Dump.
    */
-  public function dump() {
+  public function dump(array $urlPatterns, $assetName) {
+    $this->urlPatterns = $urlPatterns;
+    $this->assetName = $assetName;
+    $this->fileType = substr(strrchr($assetName, '.'), 1);
+
     $excludes = $dependencies = $patterns = array();
 
     // Create caching dir.
@@ -73,9 +74,6 @@ class AssetManager {
       // TODO: END refactor.
       // TODO: carbage collector.
       file_put_contents($cacheFile, $this->output);
-    }
-    else {
-      $this->output = file_get_contents($cacheFile);
     }
   }
 
@@ -202,11 +200,11 @@ class AssetManager {
   private function minify($rawOutput) {
     switch ($this->fileType) {
       case 'css':
-        require $this->basePath . 'app/library/cssmin/CssMin.php';
+        require_once $this->basePath . 'app/library/cssmin/CssMin.php';
         return \CssMin::minify($rawOutput);
 
       case 'js':
-        require $this->basePath . 'app/library/jshrink/Minifier.php';
+        require_once $this->basePath . 'app/library/jshrink/Minifier.php';
         return Minifier::minify($rawOutput);
     }
     return '';
