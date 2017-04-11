@@ -84,7 +84,7 @@ function terrific_integration_css_alter(&$css, AttachedAssetsInterface $assets) 
       'weight' => 0,
       'browsers' => array(),
       'media' => 'all',
-      'preprocess' => TRUE,
+      'preprocess' => FALSE,
       'version' => '1.0.0',
     ];
   }
