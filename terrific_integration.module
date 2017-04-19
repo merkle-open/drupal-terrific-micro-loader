@@ -9,6 +9,10 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\terrific_integration\AssetManager;
 
+const FRONTEND_BASE = __DIR__ . '/../../../../../frontend/';
+const JS_FILES = ['head.js', 'app.js', 'main.js'];
+const CSS_FILES = ['main.css', 'app.css'];
+
 /**
  * Implements hook_help().
  */
@@ -39,17 +43,14 @@ function terrific_integration_theme() {
  */
 function terrific_integration_preprocess_page(&$variables) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $frontendBase = __DIR__ . '/../../../../../frontend/';
-    $config = json_decode(file_get_contents($frontendBase . 'config.json'));
-    $assetManager = new AssetManager($frontendBase);
-
-    $mainJs = 'main.js';
-    $data = $config->assets->{$mainJs};
-    $assetManager->dump($data, $mainJs);
-
-    $mainCss = 'main.css';
-    $data = $config->assets->{$mainCss};
-    $assetManager->dump($data, $mainCss);
+    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
+    $assetManager = new AssetManager(FRONTEND_BASE);
+    foreach ($config->assets as $key => $conf) {
+      if (in_array($key, JS_FILES) || in_array($key, CSS_FILES)) {
+        $data = $config->assets->{$key};
+        $assetManager->dump($data, $key);
+      }
+    }
   }
 }
 
@@ -58,17 +59,22 @@ function terrific_integration_preprocess_page(&$variables) {
  */
 function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $javascript['terrific/main.js'] = [
-      'data' => _terrific_integration_file_path('main.js'),
-      'scope' => 'footer',
-      'minified' => FALSE,
-      'type' => 'file',
-      'group' => -150,
-      'weight' => 0,
-      'browsers' => array(),
-      'cache' => TRUE,
-      'version' => '1.0.0',
-    ];
+    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
+    foreach ($config->assets as $key => $conf) {
+      if (in_array($key, JS_FILES)) {
+        $javascript['terrific/' . $key] = [
+          'data' => _terrific_integration_file_path($key),
+          'scope' => $key == 'head.js' ? 'header' : 'footer',
+          'minified' => FALSE,
+          'type' => 'file',
+          'group' => -150,
+          'weight' => 0,
+          'browsers' => [],
+          'cache' => TRUE,
+          'version' => '1.0.0',
+        ];
+      }
+    }
   }
 }
 
@@ -77,16 +83,21 @@ function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $as
  */
 function terrific_integration_css_alter(&$css, AttachedAssetsInterface $assets) {
   if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $css['terrific/main.css'] = [
-      'data' => _terrific_integration_file_path('main.css'),
-      'type' => 'file',
-      'group' => -150,
-      'weight' => 0,
-      'browsers' => array(),
-      'media' => 'all',
-      'preprocess' => FALSE,
-      'version' => '1.0.0',
-    ];
+    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
+    foreach ($config->assets as $key => $conf) {
+      if (in_array($key, CSS_FILES)) {
+        $css['terrific/' . $key] = [
+          'data' => _terrific_integration_file_path($key),
+          'type' => 'file',
+          'group' => -150,
+          'weight' => 0,
+          'browsers' => [],
+          'media' => 'all',
+          'preprocess' => FALSE,
+          'version' => '1.0.0',
+        ];
+      }
+    }
   }
 }
 

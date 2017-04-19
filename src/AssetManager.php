@@ -34,7 +34,7 @@ class AssetManager {
     $this->assetName = $assetName;
     $this->fileType = substr(strrchr($assetName, '.'), 1);
 
-    $excludes = $dependencies = $patterns = array();
+    $excludes = $dependencies = $patterns = [];
 
     // Create caching dir.
     if (!is_dir($this->cachedAssetsDir)) {
@@ -80,8 +80,8 @@ class AssetManager {
   /**
    * Return files by patterns.
    */
-  private function getFilesByPatterns($patterns, $excludes = array()) {
-    $files = array();
+  private function getFilesByPatterns($patterns, $excludes = []) {
+    $files = [];
     foreach ($patterns as $pattern) {
       foreach (glob($this->basePath . $pattern) as $uri) {
         $file = str_replace($this->basePath, '', $uri);
@@ -96,7 +96,7 @@ class AssetManager {
   /**
    * Compile.
    */
-  private function compile($fileName, $dependencies = array()) {
+  private function compile($fileName, $dependencies = []) {
     $cachedir = is_writable(sys_get_temp_dir()) ? sys_get_temp_dir() : $this->basePath . 'app/cache';
     $extension = substr(strrchr($fileName, '.'), 1);
 
@@ -144,7 +144,7 @@ class AssetManager {
   /**
    * Helper function to check if pattern is an exclude.
    */
-  private function isExcludedFile($filename, $excludes = array()) {
+  private function isExcludedFile($filename, $excludes = []) {
     foreach ($excludes as $exclude) {
       if (fnmatch($exclude, $filename)) {
         return TRUE;
@@ -157,7 +157,7 @@ class AssetManager {
    * Get the headers.
    */
   public function getHeaders() {
-    $headers = array();
+    $headers = [];
     switch ($this->fileType) {
       case 'css':
         $headers['Content-Type'] = 'text/css';
