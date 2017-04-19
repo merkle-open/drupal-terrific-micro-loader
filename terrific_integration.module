@@ -71,6 +71,7 @@ function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $as
           'weight' => 0,
           'browsers' => [],
           'cache' => TRUE,
+          'preprocess' => FALSE,
           'version' => '1.0.0',
         ];
       }
