@@ -7,7 +7,8 @@ require 'utils.php';
  * Implements hook_preprocess().
  */
 function terrific_integration_preprocess(&$variables, $hook) {
-  if ($hook == 'page') {
+  global $theme;
+  if ($hook == 'page' && $theme == 'terrific') {
     $minify = variable_get('preprocess_js', FALSE);
     $cache_key = variable_get('css_js_query_string', '0');
 
