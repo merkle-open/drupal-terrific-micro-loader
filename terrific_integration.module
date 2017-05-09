@@ -9,10 +9,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\terrific_integration\AssetManager;
 
-const FRONTEND_BASE = __DIR__ . '/../../../../../frontend/';
-const JS_FILES = ['head.js', 'app.js', 'main.js'];
-const CSS_FILES = ['main.css', 'app.css'];
-
 /**
  * Implements hook_help().
  */
@@ -30,93 +26,20 @@ function terrific_integration_help($route_name, RouteMatchInterface $route_match
 }
 
 /**
- * Implements hook_theme().
- */
-function terrific_integration_theme() {
-  $theme = [];
-
-  return $theme;
-}
-
-/**
- * Implements hook_preprocess_HOOK().
- */
-function terrific_integration_preprocess_page(&$variables) {
-  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
-    $assetManager = new AssetManager(FRONTEND_BASE);
-    foreach ($config->assets as $key => $conf) {
-      if (in_array($key, JS_FILES) || in_array($key, CSS_FILES)) {
-        $data = $config->assets->{$key};
-        $assetManager->dump($data, $key);
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_js_alter().
- */
-function terrific_integration_js_alter(&$javascript, AttachedAssetsInterface $assets) {
-  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
-    foreach ($config->assets as $key => $conf) {
-      if (in_array($key, JS_FILES)) {
-        $javascript['terrific/' . $key] = [
-          'data' => _terrific_integration_file_path($key),
-          'scope' => $key == 'head.js' ? 'header' : 'footer',
-          'minified' => FALSE,
-          'type' => 'file',
-          'group' => -150,
-          'weight' => 0,
-          'browsers' => [],
-          'cache' => TRUE,
-          'preprocess' => FALSE,
-          'version' => '1.0.0',
-        ];
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_css_alter().
- */
-function terrific_integration_css_alter(&$css, AttachedAssetsInterface $assets) {
-  if (\Drupal::theme()->getActiveTheme()->getName() == 'terrific') {
-    $config = json_decode(file_get_contents(FRONTEND_BASE . 'config.json'));
-    foreach ($config->assets as $key => $conf) {
-      if (in_array($key, CSS_FILES)) {
-        $css['terrific/' . $key] = [
-          'data' => _terrific_integration_file_path($key),
-          'type' => 'file',
-          'group' => -150,
-          'weight' => 0,
-          'browsers' => [],
-          'media' => 'all',
-          'preprocess' => FALSE,
-          'version' => '1.0.0',
-        ];
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_cache_flush().
  */
 function terrific_integration_cache_flush() {
-  $files = glob(\Drupal::service('file_system')->realpath('public://terrific') . '/*');
-  foreach ($files as $file) {
-    if (is_file($file)) {
-      unlink($file);
+  $frontendBase = __DIR__ . '/../../../../../frontend/';
+  $jsFiles = ['head.js', 'app.js', 'main.js'];
+  $cssFiles = ['main.css', 'app.css'];
+
+  $config = json_decode(file_get_contents($frontendBase . 'config.json'));
+  $assetManager = new AssetManager($frontendBase);
+  foreach ($config->assets as $key => $conf) {
+    if (in_array($key, $jsFiles) || in_array($key, $cssFiles)) {
+      $data = $config->assets->{$key};
+      $assetManager->dump($data, $key);
     }
   }
 }
 
-/**
- * Helper function to return the path of the asset.
- */
-function _terrific_integration_file_path($assetName) {
-  return '/sites/default/files/terrific/' . \Drupal::state()->get('system.css_js_query_string') . '-' . $assetName;
-}

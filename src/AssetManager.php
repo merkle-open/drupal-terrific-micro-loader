@@ -14,7 +14,6 @@ class AssetManager {
   private $fileType;
   private $basePath;
   private $output = '';
-  private $cacheKey;
   private $cachedAssetsDir;
 
   /**
@@ -23,7 +22,6 @@ class AssetManager {
   public function __construct($basePath) {
     $this->basePath = $basePath;
     $this->cachedAssetsDir = \Drupal::service('file_system')->realpath('public://terrific') . '/';
-    $this->cacheKey = \Drupal::state()->get('system.css_js_query_string');
   }
 
   /**
@@ -41,7 +39,7 @@ class AssetManager {
       mkdir($this->cachedAssetsDir, 0755);
     }
 
-    $cacheFile = $this->getCacheFile();
+    $cacheFile = $this->cachedAssetsDir . $this->assetName;
 
     if (!file_exists($cacheFile)) {
       // TODO: refactor.
@@ -185,13 +183,6 @@ class AssetManager {
     require_once $this->basePath . 'app/library/lessphp/lessc.inc.php';
     $less = new \lessc();
     return $less;
-  }
-
-  /**
-   * Helper function to get cache file.
-   */
-  private function getCacheFile() {
-    return $this->cachedAssetsDir . $this->cacheKey . '-' . $this->assetName;
   }
 
   /**
