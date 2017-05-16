@@ -6,7 +6,6 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\terrific_integration\AssetManager;
 
 /**
@@ -26,9 +25,9 @@ function terrific_integration_help($route_name, RouteMatchInterface $route_match
 }
 
 /**
- * Implements hook_cache_flush().
+ * Implements hook_rebuild().
  */
-function terrific_integration_cache_flush() {
+function terrific_integration_rebuild() {
   $frontendBase = __DIR__ . '/../../../../../frontend/';
   $jsFiles = ['head.js', 'app.js', 'main.js'];
   $cssFiles = ['main.css', 'app.css'];
@@ -43,3 +42,14 @@ function terrific_integration_cache_flush() {
   }
 }
 
+/**
+ * Implements hook_cache_flush().
+ */
+function terrific_integration_cache_flush() {
+  $files = glob(\Drupal::service('file_system')->realpath('public://terrific') . '/*');
+  foreach ($files as $file) {
+    if (is_file($file)) {
+      unlink($file);
+    }
+  }
+}
