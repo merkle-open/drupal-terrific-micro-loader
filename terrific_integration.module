@@ -41,15 +41,3 @@ function terrific_integration_rebuild() {
     }
   }
 }
-
-/**
- * Implements hook_cache_flush().
- */
-function terrific_integration_cache_flush() {
-  $files = glob(\Drupal::service('file_system')->realpath('public://terrific') . '/*');
-  foreach ($files as $file) {
-    if (is_file($file)) {
-      unlink($file);
-    }
-  }
-}

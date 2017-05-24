@@ -41,38 +41,36 @@ class AssetManager {
 
     $cacheFile = $this->cachedAssetsDir . $this->assetName;
 
-    if (!file_exists($cacheFile)) {
-      // TODO: refactor.
-      foreach ($this->urlPatterns as $urlPattern) {
-        $firstchar = substr($urlPattern, 0, 1);
-        if ($firstchar === '!') {
-          $excludes[] = substr($urlPattern, 1);
+    // TODO: refactor.
+    foreach ($this->urlPatterns as $urlPattern) {
+      $firstchar = substr($urlPattern, 0, 1);
+      if ($firstchar === '!') {
+        $excludes[] = substr($urlPattern, 1);
+      }
+      else {
+        if ($firstchar === '+') {
+          $dependencies[] = substr($urlPattern, 1);
         }
         else {
-          if ($firstchar === '+') {
-            $dependencies[] = substr($urlPattern, 1);
-          }
-          else {
-            $patterns[] = $urlPattern;
-          }
+          $patterns[] = $urlPattern;
         }
       }
-
-      $dependencies = $this->getFilesByPatterns($dependencies);
-      $excludes = array_merge($dependencies, $excludes);
-      $files = $this->getFilesByPatterns($patterns, $excludes);
-
-      $rawOutput = '';
-      foreach ($files as $entry) {
-        $rawOutput .= $this->compile($this->basePath . $entry, $dependencies);
-      }
-
-      $this->output = $this->minify($rawOutput);
-
-      // TODO: END refactor.
-      // TODO: carbage collector.
-      file_put_contents($cacheFile, $this->output);
     }
+
+    $dependencies = $this->getFilesByPatterns($dependencies);
+    $excludes = array_merge($dependencies, $excludes);
+    $files = $this->getFilesByPatterns($patterns, $excludes);
+
+    $rawOutput = '';
+    foreach ($files as $entry) {
+      $rawOutput .= $this->compile($this->basePath . $entry, $dependencies);
+    }
+
+    $this->output = $this->minify($rawOutput);
+    // TODO: END refactor.
+
+    // TODO: carbage collector.
+    file_put_contents($cacheFile, $this->output);
   }
 
   /**
